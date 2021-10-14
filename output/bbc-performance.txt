@@ -1,0 +1,164 @@
+===================
+ Naive Bayes Try 1
+===================
+
+(b) confusion_matrix:
+[[105   0   4   0   2]
+ [  0  71   0   0   2]
+ [  1   0  81   0   0]
+ [  1   0   0 104   0]
+ [  0   0   0   0  74]]
+
+(c/d) classification_report: 
+               precision    recall  f1-score   support
+
+     business       0.98      0.95      0.96       111
+entertainment       1.00      0.97      0.99        73
+     politics       0.95      0.99      0.97        82
+        sport       1.00      0.99      1.00       105
+         tech       0.95      1.00      0.97        74
+
+     accuracy                           0.98       445
+    macro avg       0.98      0.98      0.98       445
+ weighted avg       0.98      0.98      0.98       445
+
+
+(e) prior probability of each class: 
+{'business': 0.22415730337078651, 'entertainment': 0.17584269662921348, 'politics': 0.18820224719101122, 'sport': 0.22808988764044943, 'tech': 0.18370786516853932}
+
+(f) vocabulary size: 29421
+
+(g) word-tokens in each class: 
+
+(h) word-tokens in the entire corpus: 
+
+(i) the number and percentage of words with a frequency of zero in each class: 
+
+(j) the number and percentage of words with a frequency of one in the entire corpus: 
+
+(k) your 2 favorite words (that are present in the vocabulary) and their log-prob: 
+
+
+===================
+ Naive Bayes Try 2
+===================
+
+(b) confusion_matrix:
+[[105   0   4   0   2]
+ [  0  71   0   0   2]
+ [  1   0  81   0   0]
+ [  1   0   0 104   0]
+ [  0   0   0   0  74]]
+
+(c/d) classification_report: 
+               precision    recall  f1-score   support
+
+     business       0.98      0.95      0.96       111
+entertainment       1.00      0.97      0.99        73
+     politics       0.95      0.99      0.97        82
+        sport       1.00      0.99      1.00       105
+         tech       0.95      1.00      0.97        74
+
+     accuracy                           0.98       445
+    macro avg       0.98      0.98      0.98       445
+ weighted avg       0.98      0.98      0.98       445
+
+
+(e) prior probability of each class: 
+{'business': 0.22415730337078651, 'entertainment': 0.17584269662921348, 'politics': 0.18820224719101122, 'sport': 0.22808988764044943, 'tech': 0.18370786516853932}
+
+(f) vocabulary size: 29421
+
+(g) word-tokens in each class: 
+
+(h) word-tokens in the entire corpus: 
+
+(i) the number and percentage of words with a frequency of zero in each class: 
+
+(j) the number and percentage of words with a frequency of one in the entire corpus: 
+
+(k) your 2 favorite words (that are present in the vocabulary) and their log-prob: 
+
+
+===================
+ Naive Bayes Try 3
+===================
+
+(b) confusion_matrix:
+[[106   0   3   0   2]
+ [  0  72   0   0   1]
+ [  1   0  81   0   0]
+ [  2   0   0 103   0]
+ [  0   0   0   0  74]]
+
+(c/d) classification_report: 
+               precision    recall  f1-score   support
+
+     business       0.97      0.95      0.96       111
+entertainment       1.00      0.99      0.99        73
+     politics       0.96      0.99      0.98        82
+        sport       1.00      0.98      0.99       105
+         tech       0.96      1.00      0.98        74
+
+     accuracy                           0.98       445
+    macro avg       0.98      0.98      0.98       445
+ weighted avg       0.98      0.98      0.98       445
+
+
+(e) prior probability of each class: 
+{'business': 0.22415730337078651, 'entertainment': 0.17584269662921348, 'politics': 0.18820224719101122, 'sport': 0.22808988764044943, 'tech': 0.18370786516853932}
+
+(f) vocabulary size: 29421
+
+(g) word-tokens in each class: 
+
+(h) word-tokens in the entire corpus: 
+
+(i) the number and percentage of words with a frequency of zero in each class: 
+
+(j) the number and percentage of words with a frequency of one in the entire corpus: 
+
+(k) your 2 favorite words (that are present in the vocabulary) and their log-prob: 
+
+
+===================
+ Naive Bayes Try 4
+===================
+
+(b) confusion_matrix:
+[[105   0   4   0   2]
+ [  0  71   0   0   2]
+ [  1   0  81   0   0]
+ [  1   0   0 104   0]
+ [  0   0   0   0  74]]
+
+(c/d) classification_report: 
+               precision    recall  f1-score   support
+
+     business       0.98      0.95      0.96       111
+entertainment       1.00      0.97      0.99        73
+     politics       0.95      0.99      0.97        82
+        sport       1.00      0.99      1.00       105
+         tech       0.95      1.00      0.97        74
+
+     accuracy                           0.98       445
+    macro avg       0.98      0.98      0.98       445
+ weighted avg       0.98      0.98      0.98       445
+
+
+(e) prior probability of each class: 
+{'business': 0.22415730337078651, 'entertainment': 0.17584269662921348, 'politics': 0.18820224719101122, 'sport': 0.22808988764044943, 'tech': 0.18370786516853932}
+
+(f) vocabulary size: 29421
+
+(g) word-tokens in each class: 
+
+(h) word-tokens in the entire corpus: 
+
+(i) the number and percentage of words with a frequency of zero in each class: 
+
+(j) the number and percentage of words with a frequency of one in the entire corpus: 
+
+(k) your 2 favorite words (that are present in the vocabulary) and their log-prob: 
+
+
