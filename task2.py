@@ -54,11 +54,12 @@ x_train, x_test, y_train, y_test = skl.model_selection.train_test_split(x_numeri
 print(x_train, y_train)
 
 # 6. Run 6 different classifiers:
-
+models = []
 # (a) NB: a Gaussian Naive Bayes Classifier (naive bayes.GaussianNB) with the default parameters.
 print("\nPerforming Gaussian NB training...")
 t0 = time()
 gnb = skl.naive_bayes.GaussianNB()
+models.append(gnb)
 gnb.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print()
@@ -67,6 +68,7 @@ print()
 print("Performing Base Decision Tree training...")
 t0 = time()
 bdt = skl.tree.DecisionTreeClassifier()
+models.append(bdt)
 bdt.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print()
@@ -86,6 +88,7 @@ parameters = {
 print("parameters:", parameters)
 t0 = time()
 tdt = skl.model_selection.GridSearchCV(skl.tree.DecisionTreeClassifier(), parameters)
+models.append(tdt)
 tdt.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print("Best score: %0.3f" % tdt.best_score_)
@@ -97,6 +100,7 @@ print()
 print("Performing Perceptron training...")
 t0 = time()
 per = skl.linear_model.Perceptron()
+models.append(per)
 per.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print()
@@ -109,7 +113,8 @@ from sklearn.utils._testing import ignore_warnings
 print("Performing Base Multi-Layered Perceptron training...")
 t0 = time()
 bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd')
-#with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+models.append(bmlp)
+# with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
 bmlp.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print()
@@ -129,7 +134,8 @@ parameters = {
 print("parameters:", parameters)
 t0 = time()
 tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(), parameters)
-#with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+models.append(tmlp)
+# with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
 tmlp.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print("Best score: %0.3f" % tmlp.best_score_)
@@ -137,16 +143,7 @@ best_params = tmlp.best_estimator_.get_params()
 print("Best parameters:", {p: best_params[p] for p in parameters})
 print()
 
-print("Running predictions...")
-y_gnb = gnb.predict(x_test)
-y_bdt = bdt.predict(x_test)
-y_tdt = tdt.predict(x_test)
-y_per = per.predict(x_test)
-y_bmlp = bmlp.predict(x_test)
-y_tmlp = tmlp.predict(x_test)
-print()
-
-# TODO 7
+# TODO 7: better desc, output to file, review warnings and 0 precision/f1 for MLPs
 '''
 7. For each of the 6 classifier above, append the following information in a file called drugs-performance.txt:
 (to make it easier for the TAs, make sure that your output for each sub-question below is clearly marked
@@ -159,7 +156,34 @@ display the best hyperparameters found by the gridsearch.
 (d) the accuracy, macro-average F1 and weighted-average F1 of the model
 '''
 
-# TODO 8
+
+def performance_report(desc, model):
+    print('================================================================================')
+    print(desc)
+    if isinstance(model, skl.model_selection.GridSearchCV):
+        print("Best score: %0.3f" % model.best_score_)
+        # TODO, only show changed parameters?
+        print("Best parameters:", model.best_estimator_.get_params())
+
+    y_pred = model.predict(x_test)
+
+    print('\n(b) confusion_matrix:')
+    print(skl.metrics.confusion_matrix(y_test, y_pred))
+    print("\n(c/d) classification_report: ")
+    print(skl.metrics.classification_report(y_test, y_pred, target_names=classes))
+    # print("\n(d) accuracy_score: ")
+    # print(metrics.accuracy_score(test, pred))
+    # print("\n(d) f1_score (macro avg): ")
+    # print(metrics.f1_score(test, pred, average='macro'))
+    # print("\n(d) f1_score (weighted avg): ")
+    # print(metrics.f1_score(test, pred, average='weighted'))
+    print('================================================================================')
+
+
+for model in models:
+    performance_report(str(type(model)), model)
+
+# TODO 8: rerun training + predict, keep track of avg metrics between all of them
 '''
 8. Redo steps 6, 10 times for each model and append the average accuracy, average macro-average F1, average 
 weighted-average F1 as well as the standard deviation for the accuracy, the standard deviation of the macro-average F1, 
