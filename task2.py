@@ -172,12 +172,12 @@ def performance_report(desc, model):
     print(skl.metrics.confusion_matrix(y_test, y_pred))
     print("\n(c/d) classification_report: ")
     print(skl.metrics.classification_report(y_test, y_pred, target_names=classes))
-    # print("\n(d) accuracy_score: ")
-    # print(metrics.accuracy_score(test, pred))
-    # print("\n(d) f1_score (macro avg): ")
-    # print(metrics.f1_score(test, pred, average='macro'))
-    # print("\n(d) f1_score (weighted avg): ")
-    # print(metrics.f1_score(test, pred, average='weighted'))
+    print("\n(d) accuracy_score: ")
+    print(str(100 * skl.metrics.accuracy_score(y_test, y_pred)) + '%')
+    print("\n(d) f1_score (macro avg): ")
+    print(str(100 * skl.metrics.f1_score(y_test, y_pred, average='macro')) + '%')
+    print("\n(d) f1_score (weighted avg): ")
+    print(str(100 * skl.metrics.f1_score(y_test, y_pred, average='weighted')) + '%')
     print('================================================================================')
 
 
