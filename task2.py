@@ -192,3 +192,115 @@ and the standard deviation of the weighted-average F1 at the end of the file dru
 Does the same model give you the same performance every time? Explain in a plain text file called drugs-discussion.txt. 
 1 or 2 paragraph discussion is expected.
 '''
+
+models_10_times = []
+# (a) NB: a Gaussian Naive Bayes Classifier (naive bayes.GaussianNB) with the default parameters.
+print("\nPerforming Gaussian NB training...")
+
+t0 = time()
+gnb = skl.naive_bayes.GaussianNB()
+models_10_times.append(gnb)
+
+for i in range(10):
+    gnb.fit(x_train, y_train)
+
+print("done in %0.3fs" % (time() - t0))
+print()
+
+# (b) Base-DT: a Decision Tree (tree.DecisionTreeClassifier) with the default parameters.
+print("Performing Base Decision Tree training...")
+t0 = time()
+
+bdt = skl.tree.DecisionTreeClassifier()
+models_10_times.append(bdt)
+
+for i in range(10):
+    bdt.fit(x_train, y_train)
+
+print("done in %0.3fs" % (time() - t0))
+print()
+
+# (c) Top-DT: a better performing Decision Tree found using (GridSearchCV). The gridsearch will allow
+# you to find the best combination of hyper-parameters, as determined by the evaluation function that
+# you have determined in step (3) above. The hyper-parameters that you will experiment with are:
+#    •criterion: gini or entropy
+#    •max depth : 2 different values of your choice
+#    •min samples split: 3 different values of your choice
+print("Performing Top-DT training w/ grid search...")
+parameters = {
+    'criterion': ['gini', 'entropy'],
+    'max_depth': [4, 5],
+    'min_samples_split': [2, 5, 10]
+}
+print("parameters:", parameters)
+t0 = time()
+tdt = skl.model_selection.GridSearchCV(skl.tree.DecisionTreeClassifier(), parameters)
+models_10_times.append(tdt)
+
+for i in range(10):
+    tdt.fit(x_train, y_train)
+
+print("done in %0.3fs" % (time() - t0))
+print("Best score: %0.3f" % tdt.best_score_)
+best_params = tdt.best_estimator_.get_params()
+print("Best parameters:", {p: best_params[p] for p in parameters})
+print()
+
+# (d) PER: a Perceptron (linear model.Perceptron), with default parameter values.
+print("Performing Perceptron training...")
+t0 = time()
+per = skl.linear_model.Perceptron()
+models_10_times.append(per)
+
+for i in range(10):
+    per.fit(x_train, y_train)
+
+print("done in %0.3fs" % (time() - t0))
+print()
+
+# (e) Base-MLP: a Multi-Layered Perceptron (neural network.MLPClassifier) with 1 hidden layer of
+# 100 neurons, sigmoid/logistic as activation function, stochastic gradient descent, and default values
+# for the rest of the parameters.
+
+print("Performing Base Multi-Layered Perceptron training...")
+t0 = time()
+bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd', max_iter=4000)
+models_10_times.append(bmlp)
+
+for i in range(10):
+    # with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+    bmlp.fit(x_train, y_train)
+
+print("done in %0.3fs" % (time() - t0))
+print()
+
+# (f) Top-MLP: a better performing Multi-Layered Perceptron found using grid search. For this, you need
+# to experiment with the following parameter values:
+#  •activation function: sigmoid, tanh, relu and identity
+#  •2 network architectures of your choice: for eg 2 hidden layers with 30 + 50 nodes, 3 hidden layers with 10 + 10 + 10
+#  •solver: Adam and stochastic gradient descent
+print("Performing Top-MLP training w/ grid search...")
+parameters = {
+    'hidden_layer_sizes': [(10, 20), (15, 15, 15)],
+    'activation': ['logistic', 'tanh', 'relu', 'identity'],
+    'solver': ['sgd', 'adam'],
+    'max_iter': [4000],
+}
+print("parameters:", parameters)
+t0 = time()
+tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(), parameters)
+models_10_times.append(tmlp)
+
+for i in range(10):
+    # with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+    tmlp.fit(x_train, y_train)
+
+print("done in %0.3fs" % (time() - t0))
+print("Best score: %0.3f" % tmlp.best_score_)
+best_params = tmlp.best_estimator_.get_params()
+print("Best parameters:", {p: best_params[p] for p in parameters})
+print()
+
+for model in models_10_times:
+    performance_report(str(type(models_10_times)), model)
+
