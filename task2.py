@@ -113,7 +113,7 @@ from sklearn.utils._testing import ignore_warnings
 
 print("Performing Base Multi-Layered Perceptron training...")
 t0 = time()
-bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd', max_iter=2500)
+bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd', max_iter=4000)
 models.append(bmlp)
 # with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
 bmlp.fit(x_train, y_train)
@@ -130,7 +130,7 @@ parameters = {
     'hidden_layer_sizes': [(10, 20), (15, 15, 15)],
     'activation': ['logistic', 'tanh', 'relu', 'identity'],
     'solver': ['sgd', 'adam'],
-    'max_iter': [3000],
+    'max_iter': [4000],
 }
 print("parameters:", parameters)
 t0 = time()
