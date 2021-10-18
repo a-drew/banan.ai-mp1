@@ -180,9 +180,8 @@ def performance_report(desc, model):
     print(str(100 * skl.metrics.f1_score(y_test, y_pred, average='weighted')) + '%')
     print('================================================================================')
 
-
 for model in models:
-    performance_report(str(type(model)), model)
+    performance_report(str(type(model).__name__), model)
 
 # TODO 8: rerun training + predict, keep track of avg metrics between all of them
 '''
@@ -202,6 +201,7 @@ gnb = skl.naive_bayes.GaussianNB()
 models_10_times.append(gnb)
 
 for i in range(10):
+    print('run #: ' + str(i + 1))
     gnb.fit(x_train, y_train)
 
 print("done in %0.3fs" % (time() - t0))
@@ -215,6 +215,7 @@ bdt = skl.tree.DecisionTreeClassifier()
 models_10_times.append(bdt)
 
 for i in range(10):
+    print('run #: ' + str(i + 1))
     bdt.fit(x_train, y_train)
 
 print("done in %0.3fs" % (time() - t0))
@@ -238,6 +239,7 @@ tdt = skl.model_selection.GridSearchCV(skl.tree.DecisionTreeClassifier(), parame
 models_10_times.append(tdt)
 
 for i in range(10):
+    print('run #: ' + str(i + 1))
     tdt.fit(x_train, y_train)
 
 print("done in %0.3fs" % (time() - t0))
@@ -253,6 +255,7 @@ per = skl.linear_model.Perceptron()
 models_10_times.append(per)
 
 for i in range(10):
+    print('run #: ' + str(i + 1))
     per.fit(x_train, y_train)
 
 print("done in %0.3fs" % (time() - t0))
@@ -269,6 +272,7 @@ models_10_times.append(bmlp)
 
 for i in range(10):
     # with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+    print('run #: ' + str(i + 1))
     bmlp.fit(x_train, y_train)
 
 print("done in %0.3fs" % (time() - t0))
@@ -293,6 +297,7 @@ models_10_times.append(tmlp)
 
 for i in range(10):
     # with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+    print('run #: ' + str(i + 1))
     tmlp.fit(x_train, y_train)
 
 print("done in %0.3fs" % (time() - t0))
@@ -302,5 +307,5 @@ print("Best parameters:", {p: best_params[p] for p in parameters})
 print()
 
 for model in models_10_times:
-    performance_report(str(type(models_10_times)), model)
+    performance_report(str(type(model).__name__), model)
 
