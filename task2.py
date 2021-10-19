@@ -10,8 +10,11 @@ from sklearn import *
 from time import time
 import sys
 
-# 2. Load the df in Python (you can use pandas.read csv)
+# controls max iterations of the MLP Classifier. Set higher for better results. Convergence warnings were silenced
+max_iter = 200
 
+# 2. Load the df in Python (you can use pandas.read csv)
+t = time()
 df = pd.read_csv('data/drug200.csv', dtype={'BP': 'category', 'Cholesterol': 'category', 'Drug': 'category'})
 print(df.dtypes)
 
@@ -51,7 +54,7 @@ print(x_numerical, y_numerical)
 
 # 5. Split the df using train test split using the default parameter
 
-x_train, x_test, y_train, y_test = skl.model_selection.train_test_split(x_numerical, y)
+x_train, x_test, y_train, y_test = skl.model_selection.train_test_split(x_numerical, y_numerical)
 print(x_train, y_train)
 
 # 6. Run 6 different classifiers:
@@ -113,12 +116,11 @@ from sklearn.utils._testing import ignore_warnings
 
 print("Performing Base Multi-Layered Perceptron training...")
 t0 = time()
-bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd', max_iter=4000)
+bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd', max_iter=max_iter)
 models.append(bmlp)
-# with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
-bmlp.fit(x_train, y_train)
+with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+    bmlp.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
-print()
 
 # (f) Top-MLP: a better performing Multi-Layered Perceptron found using grid search. For this, you need
 # to experiment with the following parameter values:
@@ -130,14 +132,14 @@ parameters = {
     'hidden_layer_sizes': [(10, 20), (15, 15, 15)],
     'activation': ['logistic', 'tanh', 'relu', 'identity'],
     'solver': ['sgd', 'adam'],
-    'max_iter': [4000],
+    'max_iter': [max_iter],
 }
 print("parameters:", parameters)
 t0 = time()
 tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(), parameters)
 models.append(tmlp)
-# with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
-tmlp.fit(x_train, y_train)
+with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+    tmlp.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print("Best score: %0.3f" % tmlp.best_score_)
 best_params = tmlp.best_estimator_.get_params()
@@ -158,13 +160,16 @@ display the best hyperparameters found by the gridsearch.
 '''
 
 
-def performance_report(desc, model):
+def performance_report(model, desc=None):
     print('================================================================================')
-    print(desc)
+    if desc is not None:
+        print(desc)
     if isinstance(model, skl.model_selection.GridSearchCV):
-        print("Best score: %0.3f" % model.best_score_)
-        # TODO, only show changed parameters?
-        print("Best parameters:", model.best_estimator_.get_params())
+        print("Top " + type(model.estimator).__name__)
+        #print("Best score: %0.3f" % model.best_score_)
+        print("Best parameters:", model.best_params_)
+    else:
+        print(type(model).__name__)
 
     y_pred = model.predict(x_test)
 
@@ -180,10 +185,10 @@ def performance_report(desc, model):
     print(str(100 * skl.metrics.f1_score(y_test, y_pred, average='weighted')) + '%')
     print('================================================================================')
 
-for model in models:
-    performance_report(str(type(model).__name__), model)
 
-# TODO 8: rerun training + predict, keep track of avg metrics between all of them
+for model in models:
+    performance_report(model)
+
 '''
 8. Redo steps 6, 10 times for each model and append the average accuracy, average macro-average F1, average 
 weighted-average F1 as well as the standard deviation for the accuracy, the standard deviation of the macro-average F1, 
@@ -192,120 +197,119 @@ Does the same model give you the same performance every time? Explain in a plain
 1 or 2 paragraph discussion is expected.
 '''
 
-models_10_times = []
+
+def train_predict_collect_metrics(model):
+    with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
+        model.fit(x_train, y_train)
+    y_pred = model.predict(x_test)
+    acc = skl.metrics.accuracy_score(y_test, y_pred)
+    maf1 = skl.metrics.f1_score(y_test, y_pred, average='macro')
+    waf1 = skl.metrics.f1_score(y_test, y_pred, average='weighted')
+    return acc, maf1, waf1
+
+
+def general_metrics_report(metrics, desc=None):
+    print('================================================================================')
+    if desc is not None:
+        print(desc)
+    average = [sum(x) / len(x) for x in zip(*metrics)]
+    print("Average Accuracy: " + str(100 * average[0]) + "%")
+    print("Average macro-average F1: " + str(100 * average[1]) + "%")
+    print("Average weighted-average F1: " + str(100 * average[2]) + "%")
+    std = [np.std(s) for s in zip(*metrics)]
+    print("Accuracy Standard Deviation: " + str(std[0]))
+    print("Macro-Average F1 Standard Deviation: " + str(std[1]))
+    print("Weighted-Average F1 Standard Deviation: " + str(std[2]))
+    print('================================================================================')
+
+
 # (a) NB: a Gaussian Naive Bayes Classifier (naive bayes.GaussianNB) with the default parameters.
-print("\nPerforming Gaussian NB training...")
-
+print("\nCalculating Metrics for Gaussian NB...")
 t0 = time()
-gnb = skl.naive_bayes.GaussianNB()
-models_10_times.append(gnb)
-
+gnb_metrics = []
 for i in range(10):
-    print('run #: ' + str(i + 1))
-    gnb.fit(x_train, y_train)
-
+    print('run #' + str(i + 1))
+    gnb = skl.naive_bayes.GaussianNB()
+    gnb_metrics.append(train_predict_collect_metrics(gnb))
+    print(gnb_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
+general_metrics_report(gnb_metrics, desc="Metrics for Gaussian Naive Bayes: ")
 
 # (b) Base-DT: a Decision Tree (tree.DecisionTreeClassifier) with the default parameters.
-print("Performing Base Decision Tree training...")
+print("Calculating Metrics for Base Decision Tree...")
 t0 = time()
-
-bdt = skl.tree.DecisionTreeClassifier()
-models_10_times.append(bdt)
-
+bdt_metrics = []
 for i in range(10):
-    print('run #: ' + str(i + 1))
-    bdt.fit(x_train, y_train)
-
+    print('run #' + str(i + 1))
+    bdt = skl.tree.DecisionTreeClassifier()
+    bdt_metrics.append(train_predict_collect_metrics(bdt))
+    print(bdt_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
+general_metrics_report(bdt_metrics, desc="Metrics for Base Decision Tree: ")
 
-# (c) Top-DT: a better performing Decision Tree found using (GridSearchCV). The gridsearch will allow
-# you to find the best combination of hyper-parameters, as determined by the evaluation function that
-# you have determined in step (3) above. The hyper-parameters that you will experiment with are:
-#    •criterion: gini or entropy
-#    •max depth : 2 different values of your choice
-#    •min samples split: 3 different values of your choice
-print("Performing Top-DT training w/ grid search...")
+# (c) Top-DT: a better performing Decision Tree found using (GridSearchCV)
+print("Calculating Metrics for Top-DT w/ grid search...")
 parameters = {
     'criterion': ['gini', 'entropy'],
     'max_depth': [4, 5],
     'min_samples_split': [2, 5, 10]
 }
-print("parameters:", parameters)
 t0 = time()
-tdt = skl.model_selection.GridSearchCV(skl.tree.DecisionTreeClassifier(), parameters)
-models_10_times.append(tdt)
-
+tdt_metrics = []
 for i in range(10):
-    print('run #: ' + str(i + 1))
-    tdt.fit(x_train, y_train)
-
+    print('run #' + str(i + 1))
+    tdt = skl.model_selection.GridSearchCV(skl.tree.DecisionTreeClassifier(), parameters)
+    tdt_metrics.append(train_predict_collect_metrics(tdt))
+    print(tdt_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
-print("Best score: %0.3f" % tdt.best_score_)
-best_params = tdt.best_estimator_.get_params()
-print("Best parameters:", {p: best_params[p] for p in parameters})
 print()
+general_metrics_report(tdt_metrics, desc="Metrics for Top Decision Tree: ")
 
 # (d) PER: a Perceptron (linear model.Perceptron), with default parameter values.
-print("Performing Perceptron training...")
+print("Calculating Metrics for Perceptron...")
 t0 = time()
-per = skl.linear_model.Perceptron()
-models_10_times.append(per)
-
+per_metrics = []
 for i in range(10):
-    print('run #: ' + str(i + 1))
-    per.fit(x_train, y_train)
-
+    print('run #' + str(i + 1))
+    per = skl.linear_model.Perceptron()
+    per_metrics.append(train_predict_collect_metrics(per))
+    print(per_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
+general_metrics_report(per_metrics, desc="Metrics for Perceptron: ")
 
-# (e) Base-MLP: a Multi-Layered Perceptron (neural network.MLPClassifier) with 1 hidden layer of
-# 100 neurons, sigmoid/logistic as activation function, stochastic gradient descent, and default values
-# for the rest of the parameters.
-
-print("Performing Base Multi-Layered Perceptron training...")
+# (e) Base-MLP: a Multi-Layered Perceptron (neural network.MLPClassifier)
+print("Calculating Metrics for Base Multi-Layered Perceptron...")
 t0 = time()
-bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd', max_iter=4000)
-models_10_times.append(bmlp)
-
+bmlp_metrics = []
 for i in range(10):
-    # with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
-    print('run #: ' + str(i + 1))
-    bmlp.fit(x_train, y_train)
-
+    print('run #' + str(i + 1))
+    bmlp = skl.neural_network.MLPClassifier(hidden_layer_sizes=100, activation='logistic', solver='sgd', max_iter=max_iter)
+    bmlp_metrics.append(train_predict_collect_metrics(bmlp))
+    print(bmlp_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
+general_metrics_report(bmlp_metrics, desc="Metrics for Base Multi-Layered Perceptron: ")
 
-# (f) Top-MLP: a better performing Multi-Layered Perceptron found using grid search. For this, you need
-# to experiment with the following parameter values:
-#  •activation function: sigmoid, tanh, relu and identity
-#  •2 network architectures of your choice: for eg 2 hidden layers with 30 + 50 nodes, 3 hidden layers with 10 + 10 + 10
-#  •solver: Adam and stochastic gradient descent
-print("Performing Top-MLP training w/ grid search...")
+# (f) Top-MLP: a better performing Multi-Layered Perceptron found using grid search.
+print("Calculating Metrics for Top Multi-Layered Perceptron...")
 parameters = {
     'hidden_layer_sizes': [(10, 20), (15, 15, 15)],
     'activation': ['logistic', 'tanh', 'relu', 'identity'],
     'solver': ['sgd', 'adam'],
-    'max_iter': [4000],
+    'max_iter': [max_iter],
 }
-print("parameters:", parameters)
 t0 = time()
-tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(), parameters)
-models_10_times.append(tmlp)
-
+tmlp_metrics = []
 for i in range(10):
-    # with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
-    print('run #: ' + str(i + 1))
-    tmlp.fit(x_train, y_train)
-
+    print('run #' + str(i + 1))
+    tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(), parameters)
+    tmlp_metrics.append(train_predict_collect_metrics(tmlp))
+    print(tmlp_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
-print("Best score: %0.3f" % tmlp.best_score_)
-best_params = tmlp.best_estimator_.get_params()
-print("Best parameters:", {p: best_params[p] for p in parameters})
 print()
+general_metrics_report(tmlp_metrics, desc="Metrics for Base Multi-Layered Perceptron: ")
 
-for model in models_10_times:
-    performance_report(str(type(model).__name__), model)
-
+print("\n\nTotal runtime: %0.3fs" % (time() - t))
