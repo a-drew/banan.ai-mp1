@@ -5,7 +5,7 @@ What metric is best suited to this dataset/task and why?
 
 A:
 The first thing we notice when looking at the class distribution graph is that the proportion of data per class is on average of about 20%, with a variance not greater than 3%. This is good because already some potential bias affecting the probability estimation process is circumvented.
-Generally speaking, accuracy can not be as reliable of a metric when the dataset is unbalanced, but in our case the dataset is fairly balanced so for simplicity's sake we can get away with looking to just that metric. Though in the case when the dataset is unbalanced we would ultimately look more toward the F1 score for verification which inidicates the balance between the precision and sensitivity aspects of the models performance.
+Generally speaking, accuracy can not be as reliable of a metric when the dataset is unbalanced, but in our case the dataset is fairly balanced so for simplicity's sake we can get away with looking to just that metric. Though in the case when the dataset is unbalanced we would ultimately look more toward the F1 score for verification which indicates the balance between the precision and sensitivity aspects of the model's performance.
 
 b)
 
@@ -16,4 +16,4 @@ A:
 
 Step 8, i.e. repeating step 7 with no changes, brought about the exact same results as the first run.
 The variations of smoothing factor change the output of the classifier by "loosening up" the algorithm, to account for an assumed loss function during the discrimination process. Depending on how difficult the targets are to classify (how unambiguous the criteria being used is) increasing this smoothing factor to a "sweet spot" can help nudge the model into a much higher accuracy rate.
-That being said, in try 3 with a mere alpha factor of 0.0001 we see a very negligble drop in overall confidence for estimates. For try 4 with the smoothing factor at 0.9, we see similarly neglible fluctuations within the performance metrics of the model. This is a testament to the aptness of the MNB model for being able to effectively classify natural language given a properly enough balanced training data set.
+That being said, in try 3 with a mere alpha factor of 0.0001 we see a very negligible drop in overall confidence for estimates. For try 4 with the smoothing factor at 0.9, we see similarly negligible fluctuations within the performance metrics of the model. This is a testament to the aptness of the MNB model for being able to effectively classify natural language given a properly enough balanced training data set.
