@@ -8,10 +8,9 @@ import numpy as np
 import logging
 from sklearn import *
 from time import time
-import sys
 
 # controls max iterations of the MLP Classifier. Set higher for better results. Convergence warnings were silenced
-max_iter = 200
+max_iter = 4000
 
 # 2. Load the df in Python (you can use pandas.read csv)
 t = time()
@@ -96,8 +95,7 @@ models.append(tdt)
 tdt.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print("Best score: %0.3f" % tdt.best_score_)
-best_params = tdt.best_estimator_.get_params()
-print("Best parameters:", {p: best_params[p] for p in parameters})
+print("Best parameters: ", tdt.best_params_)
 print()
 
 # (d) PER: a Perceptron (linear model.Perceptron), with default parameter values.
@@ -132,18 +130,16 @@ parameters = {
     'hidden_layer_sizes': [(10, 20), (15, 15, 15)],
     'activation': ['logistic', 'tanh', 'relu', 'identity'],
     'solver': ['sgd', 'adam'],
-    'max_iter': [max_iter],
 }
 print("parameters:", parameters)
 t0 = time()
-tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(), parameters)
+tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(max_iter=max_iter), parameters)
 models.append(tmlp)
 with ignore_warnings(category=skl.exceptions.ConvergenceWarning):
     tmlp.fit(x_train, y_train)
 print("done in %0.3fs" % (time() - t0))
 print("Best score: %0.3f" % tmlp.best_score_)
-best_params = tmlp.best_estimator_.get_params()
-print("Best parameters:", {p: best_params[p] for p in parameters})
+print("Best parameters:", tdt.best_params_)
 print()
 
 # TODO 7: review warnings and 0 precision/f1 for MLPs
@@ -173,7 +169,8 @@ def performance_report(model):
     if isinstance(model, skl.model_selection.GridSearchCV):
         logger.info("Top " + type(model.estimator).__name__)
         #logger.info("Best score: %0.3f" % model.best_score_)
-        logger.info("Best parameters:", model.best_params_)
+        logger.info("Best parameters: ")
+        logger.info(model.best_params_)
     else:
         logger.info(type(model).__name__)
 
@@ -306,13 +303,12 @@ parameters = {
     'hidden_layer_sizes': [(10, 20), (15, 15, 15)],
     'activation': ['logistic', 'tanh', 'relu', 'identity'],
     'solver': ['sgd', 'adam'],
-    'max_iter': [max_iter],
 }
 t0 = time()
 tmlp_metrics = []
 for i in range(10):
     print('run #' + str(i + 1))
-    tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(), parameters)
+    tmlp = skl.model_selection.GridSearchCV(skl.neural_network.MLPClassifier(max_iter=max_iter), parameters)
     tmlp_metrics.append(train_predict_collect_metrics(tmlp))
     print(tmlp_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
