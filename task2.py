@@ -146,7 +146,7 @@ best_params = tmlp.best_estimator_.get_params()
 print("Best parameters:", {p: best_params[p] for p in parameters})
 print()
 
-# TODO 7: better desc, output to file, review warnings and 0 precision/f1 for MLPs
+# TODO 7: review warnings and 0 precision/f1 for MLPs
 '''
 7. For each of the 6 classifier above, append the following information in a file called drugs-performance.txt:
 (to make it easier for the TAs, make sure that your output for each sub-question below is clearly marked
@@ -159,31 +159,37 @@ display the best hyperparameters found by the gridsearch.
 (d) the accuracy, macro-average F1 and weighted-average F1 of the model
 '''
 
+if os.path.exists('output/drug-performance.txt'):
+    os.remove('output/drug-performance.txt')
 
-def performance_report(model, desc=None):
-    print('================================================================================')
-    if desc is not None:
-        print(desc)
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger()
+logger.addHandler(logging.FileHandler('output/drug-performance.txt', 'w'))
+logger.info("Task 7:\n")
+
+
+def performance_report(model):
+    logger.info('================================================================================')
     if isinstance(model, skl.model_selection.GridSearchCV):
-        print("Top " + type(model.estimator).__name__)
-        #print("Best score: %0.3f" % model.best_score_)
-        print("Best parameters:", model.best_params_)
+        logger.info("Top " + type(model.estimator).__name__)
+        #logger.info("Best score: %0.3f" % model.best_score_)
+        logger.info("Best parameters:", model.best_params_)
     else:
-        print(type(model).__name__)
+        logger.info(type(model).__name__)
 
     y_pred = model.predict(x_test)
 
-    print('\n(b) confusion_matrix:')
-    print(skl.metrics.confusion_matrix(y_test, y_pred))
-    print("\n(c/d) classification_report: ")
-    print(skl.metrics.classification_report(y_test, y_pred, target_names=classes))
-    print("\n(d) accuracy_score: ")
-    print(str(100 * skl.metrics.accuracy_score(y_test, y_pred)) + '%')
-    print("\n(d) f1_score (macro avg): ")
-    print(str(100 * skl.metrics.f1_score(y_test, y_pred, average='macro')) + '%')
-    print("\n(d) f1_score (weighted avg): ")
-    print(str(100 * skl.metrics.f1_score(y_test, y_pred, average='weighted')) + '%')
-    print('================================================================================')
+    logger.info('\n(b) confusion_matrix:')
+    logger.info(skl.metrics.confusion_matrix(y_test, y_pred))
+    logger.info("\n(c/d) classification_report: ")
+    logger.info(skl.metrics.classification_report(y_test, y_pred, target_names=classes))
+    logger.info("\n(d) accuracy_score: ")
+    logger.info(str(100 * skl.metrics.accuracy_score(y_test, y_pred)) + '%')
+    logger.info("\n(d) f1_score (macro avg): ")
+    logger.info(str(100 * skl.metrics.f1_score(y_test, y_pred, average='macro')) + '%')
+    logger.info("\n(d) f1_score (weighted avg): ")
+    logger.info(str(100 * skl.metrics.f1_score(y_test, y_pred, average='weighted')) + '%')
+    logger.info('================================================================================')
 
 
 for model in models:
@@ -196,6 +202,7 @@ and the standard deviation of the weighted-average F1 at the end of the file dru
 Does the same model give you the same performance every time? Explain in a plain text file called drugs-discussion.txt. 
 1 or 2 paragraph discussion is expected.
 '''
+logger.info("\nTask 8:\n")
 
 
 def train_predict_collect_metrics(model):
@@ -209,18 +216,18 @@ def train_predict_collect_metrics(model):
 
 
 def general_metrics_report(metrics, desc=None):
-    print('================================================================================')
+    logger.info('================================================================================')
     if desc is not None:
-        print(desc)
+        logger.info(desc)
     average = [sum(x) / len(x) for x in zip(*metrics)]
-    print("Average Accuracy: " + str(100 * average[0]) + "%")
-    print("Average macro-average F1: " + str(100 * average[1]) + "%")
-    print("Average weighted-average F1: " + str(100 * average[2]) + "%")
+    logger.info("Average Accuracy: " + str(100 * average[0]) + "%")
+    logger.info("Average macro-average F1: " + str(100 * average[1]) + "%")
+    logger.info("Average weighted-average F1: " + str(100 * average[2]) + "%")
     std = [np.std(s) for s in zip(*metrics)]
-    print("Accuracy Standard Deviation: " + str(std[0]))
-    print("Macro-Average F1 Standard Deviation: " + str(std[1]))
-    print("Weighted-Average F1 Standard Deviation: " + str(std[2]))
-    print('================================================================================')
+    logger.info("Accuracy Standard Deviation: " + str(std[0]))
+    logger.info("Macro-Average F1 Standard Deviation: " + str(std[1]))
+    logger.info("Weighted-Average F1 Standard Deviation: " + str(std[2]))
+    logger.info('================================================================================')
 
 
 # (a) NB: a Gaussian Naive Bayes Classifier (naive bayes.GaussianNB) with the default parameters.
@@ -234,7 +241,7 @@ for i in range(10):
     print(gnb_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
-general_metrics_report(gnb_metrics, desc="Metrics for Gaussian Naive Bayes: ")
+general_metrics_report(gnb_metrics, desc="Metrics for 10 runs of Gaussian Naive Bayes: ")
 
 # (b) Base-DT: a Decision Tree (tree.DecisionTreeClassifier) with the default parameters.
 print("Calculating Metrics for Base Decision Tree...")
@@ -247,7 +254,7 @@ for i in range(10):
     print(bdt_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
-general_metrics_report(bdt_metrics, desc="Metrics for Base Decision Tree: ")
+general_metrics_report(bdt_metrics, desc="Metrics for 10 runs of Base Decision Tree: ")
 
 # (c) Top-DT: a better performing Decision Tree found using (GridSearchCV)
 print("Calculating Metrics for Top-DT w/ grid search...")
@@ -265,7 +272,7 @@ for i in range(10):
     print(tdt_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
-general_metrics_report(tdt_metrics, desc="Metrics for Top Decision Tree: ")
+general_metrics_report(tdt_metrics, desc="Metrics for 10 runs of Top Decision Tree: ")
 
 # (d) PER: a Perceptron (linear model.Perceptron), with default parameter values.
 print("Calculating Metrics for Perceptron...")
@@ -278,7 +285,7 @@ for i in range(10):
     print(per_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
-general_metrics_report(per_metrics, desc="Metrics for Perceptron: ")
+general_metrics_report(per_metrics, desc="Metrics for 10 runs of Perceptron: ")
 
 # (e) Base-MLP: a Multi-Layered Perceptron (neural network.MLPClassifier)
 print("Calculating Metrics for Base Multi-Layered Perceptron...")
@@ -291,7 +298,7 @@ for i in range(10):
     print(bmlp_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
-general_metrics_report(bmlp_metrics, desc="Metrics for Base Multi-Layered Perceptron: ")
+general_metrics_report(bmlp_metrics, desc="Metrics for 10 runs of Base Multi-Layered Perceptron: ")
 
 # (f) Top-MLP: a better performing Multi-Layered Perceptron found using grid search.
 print("Calculating Metrics for Top Multi-Layered Perceptron...")
@@ -310,6 +317,6 @@ for i in range(10):
     print(tmlp_metrics[-1])
 print("done in %0.3fs" % (time() - t0))
 print()
-general_metrics_report(tmlp_metrics, desc="Metrics for Base Multi-Layered Perceptron: ")
+general_metrics_report(tmlp_metrics, desc="Metrics for 10 runs of Top Multi-Layered Perceptron: ")
 
 print("\n\nTotal runtime: %0.3fs" % (time() - t))
